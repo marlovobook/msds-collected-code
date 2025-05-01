@@ -1,18 +1,25 @@
 import sys
+from awsglue.transforms import *
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+
+import sys
 import os
 import boto3
 import awswrangler as wr
 import pandas as pd
 import vectorbt as vbt
 import pandas_ta as ta
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 def main():
     # Parameters
     symbols = ['NVDA']
     start_date = '2021-01-01'
-    end_date = datetime.today().strftime('%Y-%m-%d')
+    end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 
     # Download stock data
     price = vbt.YFData.download(
@@ -42,7 +49,7 @@ def main():
 
     # S3 paths and metadata
     s3_bucket = os.getenv('S3_BUCKET', 'bucket-final-msds0144')
-    s3_prefix = os.getenv('S3_KEY_PREFIX', 'vectorbt_output/raw_yfinance')
+    s3_prefix = os.getenv('S3_KEY_PREFIX', 'vectorbt_output/nvda_stock_data')
     s3_path = f's3://{s3_bucket}/{s3_prefix}'
 
     # Load existing data if any
@@ -54,23 +61,32 @@ def main():
         )
     except Exception:
         existing_df = pd.DataFrame()
+        
 
     # Combine and deduplicate (upsert on date)
     combined_df = pd.concat([existing_df, df], ignore_index=True)
     combined_df.drop_duplicates(subset=['date', 'symbol'], keep='last', inplace=True)
+    combined_df['date'] = pd.to_datetime(combined_df['date']).dt.date
 
     # Write back to S3 with partitioning
     wr.s3.to_parquet(
         df=combined_df,
         path=s3_path,
         dataset=True,
-        mode='overwrite_partitions',
+        mode='overwrite',
         index=False,
         partition_cols=["symbol", "date"],
         database="project",
-        table="raw_yfinance"
+        table="nvda_stock_data"
     )
-
+    # Write back to S3 with rds (transactional workload)
+    wr.s3.to_parquet(
+        df=combined_df,
+        path="s3://bucket-final-msds0144/rds-parquet/",
+        dataset=True,
+        mode='overwrite',
+        index=False,
+    )
     print(json.dumps({'statusCode': 200, 'message': f'Data for {symbols[0]} upserted to {s3_path}'}))
 
 if __name__ == "__main__":

@@ -1,0 +1,8 @@
+[server]
+runOnSave = false
+maxMessageSize = 2000
+port = 8501
+
+
+[theme]
+primaryColor="orange"

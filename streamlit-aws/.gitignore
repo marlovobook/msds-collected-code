@@ -167,9 +167,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ruff stuff:
-.ruff_cache/
-
 # PyPI configuration file
 .pypirc
 
@@ -180,4 +177,3 @@ cython_debug/
 *.xlsx
 *.xls
 *.db
-*.parquet

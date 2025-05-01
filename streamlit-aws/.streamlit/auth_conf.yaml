@@ -1,0 +1,28 @@
+cookie:
+  expiry_days: 30
+  key: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  name: streamlit_erc_ml_cookie
+credentials:
+  usernames:
+    piramid:
+      email: null
+      failed_login_attempts: 0
+      first_name: piramid
+      last_name: surin
+      logged_in: true
+      password: $2b$12$owfAAhy8RsBOmqlnPP3EHODr.rMo8vQRBDYPZEekyOqzH8IlP.wqK
+      roles:
+      - admin
+      - editor
+      - viewer
+    piramidsurin:
+      email: book.piramidsurin@gmail.com
+      failed_login_attempts: 0
+      first_name: Piramid
+      last_name: Surin
+      logged_in: true
+      password: $2b$12$/UmIqEmyjpbhgrAJ5B2ma.6Q6NP7Zy/lbaSRAsdahUANR/gseXdKe
+      roles:
+      - admin
+      - editor
+      - viewer
